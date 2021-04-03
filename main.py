@@ -3,12 +3,13 @@ import math
 import random
 
 ### CONSTANTS
-FPS = 3
+FPS = 5
 w = 50
 
 # COLORS
 WHITE = (255, 255, 255)
 LIGHT_GREEN = (186, 208, 114)
+DARK_GREEN = (110, 154, 68)
 
 # WINDOW
 WIN_WIDTH = 600
@@ -20,7 +21,6 @@ ROWS = math.floor(WIN_WIDTH / w)
 
 ## functions
 def index(x, y):
-    print(x,y)
     if x < 0 or y < 0 or x * w >= WIN_WIDTH or y * w >= WIN_WIDTH:
         return 0
     
@@ -31,15 +31,27 @@ def draw_frame(current):
     # Draw a rectangle where the current cell is
     x = current.x * w
     y = current.y * w
-    pygame.draw.rect(WIN, LIGHT_GREEN, pygame.Rect(x + 1, y + 1, w - 2, w - 2))
+    pygame.draw.rect(WIN, DARK_GREEN, pygame.Rect(x + 1, y + 1, w - 2, w - 2))
     pygame.display.update()
+    pygame.draw.rect(WIN, LIGHT_GREEN, pygame.Rect(x + 1, y + 1, w - 2, w - 2))
 
 
-def remove_wall(last_cell, current):
-    cur_x = current.x
-    cur_y = current.y
-    last_x = last_cell.x
-    last_y = last_cell.y
+def remove_line(last_cell, current, direction):
+    cur_x = current.x * w
+    cur_y = current.y * w
+    last_x = last_cell.x * w
+    last_y = last_cell.y * w
+
+    print(cur_x, cur_y, last_x, last_y)
+
+    if direction == "top":
+        pygame.draw.rect(WIN, LIGHT_GREEN, pygame.Rect(cur_x + 1, cur_y + 1, w - 2, (w - 2) * 2))
+    elif direction == "right":
+        pygame.draw.rect(WIN, LIGHT_GREEN, pygame.Rect(last_x + 1, last_y + 1, (w - 2) * 2, w - 2))
+    elif direction == "bottom":
+        pygame.draw.rect(WIN, LIGHT_GREEN, pygame.Rect(last_x + 1, last_y + 1, w - 2, (w  - 2) * 2))
+    elif direction == "left":
+        pygame.draw.rect(WIN, LIGHT_GREEN, pygame.Rect(cur_x + 1, cur_y + 1, (w - 2) * 2, w - 2))
 
 
 
@@ -61,6 +73,7 @@ class cell:
             
     def pick_next(self, current, grid, visited):
         neighbors = []
+        direction = []
         x = self.x
         y = self.y
 
@@ -71,18 +84,24 @@ class cell:
 
         if top not in visited and top != 0:
             neighbors.append(top)
+            direction.append("top")
         if right not in visited and right != 0:
             neighbors.append(right)
+            direction.append("right")
         if bottom not in visited and bottom != 0:
             neighbors.append(bottom)
+            direction.append("bottom")
         if left not in visited and left != 0:
             neighbors.append(left)
+            direction.append("left")
 
         # now pick a random one from the neihbors
         if len(neighbors) == 0:
-            return -1
+            return -1, "none"
         else:
-            return neighbors[random.randint(0, len(neighbors) - 1)]
+            random_num = random.randint(0, len(neighbors) - 1)
+            return neighbors[random_num], direction[random_num]
+
         
 
 ## Main
@@ -116,14 +135,14 @@ def main():
         visited.append(current)
         draw_frame(current)
 
-        next_cell = current.pick_next(current, grid, visited)
+        next_cell, direction = current.pick_next(current, grid, visited)
         last_cell = current
 
         if  next_cell == -1:
             print("we done now?")
         else:
             current = next_cell
-            remove_wall(last_cell, current)
+            remove_line(last_cell, current, direction)
         
     
 
