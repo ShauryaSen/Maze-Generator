@@ -3,7 +3,7 @@ import math
 import random
 
 ### CONSTANTS
-FPS = 5
+FPS = 10
 w = 50
 
 # COLORS
@@ -42,7 +42,7 @@ def remove_line(last_cell, current, direction):
     last_x = last_cell.x * w
     last_y = last_cell.y * w
 
-    print(cur_x, cur_y, last_x, last_y)
+    #print(cur_x, cur_y, last_x, last_y)
 
     if direction == "top":
         pygame.draw.rect(WIN, LIGHT_GREEN, pygame.Rect(cur_x + 1, cur_y + 1, w - 2, (w - 2) * 2))
@@ -116,6 +116,7 @@ def main():
         box.show()
 
     visited = []
+    stack = []
     current = grid[0]
     remove_wall = False
 
@@ -125,7 +126,7 @@ def main():
     while run:
         clock.tick(FPS)
 
-        # events
+        # events    
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
@@ -134,15 +135,28 @@ def main():
         # what happens each frame
         visited.append(current)
         draw_frame(current)
+        stack.append(current)
 
         next_cell, direction = current.pick_next(current, grid, visited)
         last_cell = current
 
-        if  next_cell == -1:
-            print("we done now?")
-        else:
+        while  next_cell == -1:    
+            stack.pop()
+            if len(stack) < 1:
+                break
+            current = stack[len(stack) - 1]
+            next_cell, direction = current.pick_next(current, grid, visited)
+            draw_frame(current)
+            clock.tick(FPS)
+            #current = last_cell
+        
+        if next_cell != -1:
             current = next_cell
             remove_line(last_cell, current, direction)
+        print("hi are we still looping")
+
+        if len(stack) < 1:
+            break
         
     
 
