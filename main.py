@@ -1,10 +1,10 @@
 import pygame
 import math
-import random
+
 
 ### CONSTANTS
-FPS = 10
-w = 50
+FPS = 500
+w = 10
 
 # COLORS
 WHITE = (255, 255, 255)
@@ -37,6 +37,7 @@ def draw_frame(current):
 
 
 def remove_line(last_cell, current, direction):
+    
     cur_x = current.x * w
     cur_y = current.y * w
     last_x = last_cell.x * w
@@ -52,7 +53,7 @@ def remove_line(last_cell, current, direction):
         pygame.draw.rect(WIN, LIGHT_GREEN, pygame.Rect(last_x + 1, last_y + 1, w - 2, (w  - 2) * 2))
     elif direction == "left":
         pygame.draw.rect(WIN, LIGHT_GREEN, pygame.Rect(cur_x + 1, cur_y + 1, (w - 2) * 2, w - 2))
-
+    
 
 
 # Cell class
@@ -129,7 +130,6 @@ def main():
         # events    
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                run = False
                 pygame.quit()
 
         # what happens each frame
@@ -140,15 +140,17 @@ def main():
         next_cell, direction = current.pick_next(current, grid, visited)
         last_cell = current
 
-        while  next_cell == -1:    
+        while next_cell == -1:    
+            clock.tick(FPS)
             stack.pop()
             if len(stack) < 1:
                 break
             current = stack[len(stack) - 1]
+            last_cell = current
             next_cell, direction = current.pick_next(current, grid, visited)
             draw_frame(current)
-            clock.tick(FPS)
             #current = last_cell
+
         
         if next_cell != -1:
             current = next_cell
@@ -157,6 +159,13 @@ def main():
 
         if len(stack) < 1:
             break
+
+    game_pause = True
+    while game_pause == True:
+        clock.tick(FPS)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
         
     
 
