@@ -1,10 +1,11 @@
 import pygame
 import math
+import random
 
 
 ### CONSTANTS
 FPS = 500
-w = 10
+w = 20
 
 # COLORS
 WHITE = (255, 255, 255)
@@ -12,7 +13,7 @@ LIGHT_GREEN = (186, 208, 114)
 DARK_GREEN = (110, 154, 68)
 
 # WINDOW
-WIN_WIDTH = 600
+WIN_WIDTH = 1000
 WIN = pygame.display.set_mode((WIN_WIDTH, WIN_WIDTH))
 pygame.display.set_caption("Snake Game")
 COLS = math.floor(WIN_WIDTH / w)
