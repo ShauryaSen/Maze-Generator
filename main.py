@@ -15,7 +15,7 @@ DARK_GREEN = (110, 154, 68)
 # WINDOW
 WIN_WIDTH = 1000
 WIN = pygame.display.set_mode((WIN_WIDTH, WIN_WIDTH))
-pygame.display.set_caption("Snake Game")
+pygame.display.set_caption("Maze Generator")
 COLS = math.floor(WIN_WIDTH / w)
 ROWS = math.floor(WIN_WIDTH / w)
 
@@ -156,8 +156,6 @@ def main():
         if next_cell != -1:
             current = next_cell
             remove_line(last_cell, current, direction)
-        print("hi are we still looping")
-
         if len(stack) < 1:
             break
 
