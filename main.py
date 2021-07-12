@@ -1,3 +1,6 @@
+# I was originally going to add search algorithims to solve the maze after it is generated but it wouldn't be that good because the mazes that are generated have long hallways and not a lot of turns so it isn't really a good visualization for search algorithims you can see the remnants me starting this here but i was too lazy to really change it back so the code is really bad
+
+
 import pygame
 import math
 import random
