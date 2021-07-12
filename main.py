@@ -4,8 +4,8 @@ import random
 pygame.init()
 
 ### CONSTANTS
-FPS = 50
-w = 50
+FPS = 100
+w = 25
 
 # COLORS
 WHITE = (255, 255, 255)
@@ -13,14 +13,15 @@ LIGHT_GREEN = (186, 208, 114)
 DARK_GREEN = (110, 154, 68)
 GRAY = (250, 250, 250)
 BLACK = (0, 0, 0)
-GREEN = (80, 220, 100)
+MAD_LIGHT_GREEN = (80, 220, 100)
 BLUE = (102, 191, 191)
 DARKER_BLUE = (80, 169, 169)
-
+RED = (238, 41, 57)
+GREENY = (243,244,237)
 
 # WINDOW
 PADDING = 150
-WIN_WIDTH = 750
+WIN_WIDTH = 800
 WIN = pygame.display.set_mode((WIN_WIDTH, WIN_WIDTH + PADDING))
 WIN.fill(GRAY)
 pygame.display.set_caption("Maze Generator")
@@ -55,17 +56,30 @@ def remove_line(last_cell, current, direction):
     #print(cur_x, cur_y, last_x, last_y)
 
     if direction == "top":
+        current.walls[2] = False
+        last_cell.walls[0] = False
         pygame.draw.rect(WIN, LIGHT_GREEN, pygame.Rect(cur_x + 1, cur_y + 1, w - 2, (w - 2) * 2))
     elif direction == "right":
+        current.walls[3] = False
+        last_cell.walls[1] = False
         pygame.draw.rect(WIN, LIGHT_GREEN, pygame.Rect(last_x + 1, last_y + 1, (w - 2) * 2, w - 2))
     elif direction == "bottom":
+        current.walls[0] = False
+        last_cell.walls[2] = False
         pygame.draw.rect(WIN, LIGHT_GREEN, pygame.Rect(last_x + 1, last_y + 1, w - 2, (w  - 2) * 2))
     elif direction == "left":
+        current.walls[1] = False
+        last_cell.walls[3] = False
         pygame.draw.rect(WIN, LIGHT_GREEN, pygame.Rect(cur_x + 1, cur_y + 1, (w - 2) * 2, w - 2))
     
 
 # Cell class
 class cell:
+
+    # define what walls the cell has
+    #       top   right bottom left
+    walls = [True, True, True, True]
+
     def __init__(self, x, y):
         self.x = x
         self.y = y
@@ -75,9 +89,14 @@ class cell:
         y = (self.y * w) + PADDING
 
         # Draw the cell's lines
+        
+        # top
         pygame.draw.line(WIN, BLACK, (x, y), (x + w, y))
+        # right
         pygame.draw.line(WIN, BLACK, (x + w - 1, y - 1), (x + w - 1, y + w - 1))
+        # bottom
         pygame.draw.line(WIN, BLACK, (x - 1, y + w - 1), (x + w - 1, y + w - 1))
+        # left
         pygame.draw.line(WIN, BLACK, (x, y), (x, y + w ))
             
     def pick_next(self, current, grid, visited):
@@ -112,7 +131,7 @@ class cell:
             return neighbors[random_num], direction[random_num]
 
 # Button Class
-class algorithim_button:
+class start_button:
     def __init__(self, color, x, y, width, height, font, font_size, text=""):
        self.color = color
        self.x = x
@@ -125,7 +144,7 @@ class algorithim_button:
 
     def draw(self, WIN, outline_color=None):
         if outline_color:
-            pygame.draw.rect(WIN, outline, (self.x - 2, self.y - 2, self.width + 4, self.hieght + 4), 0)
+            pygame.draw.rect(WIN, outline_color, (self.x - 2, self.y - 2, self.width + 4, self.hieght + 4), 0)
         pygame.draw.rect(WIN, self.color, (self.x, self.y, self.width, self.height), 0)
 
         if self.text != "":
@@ -155,24 +174,19 @@ def main():
     for box in grid:
         box.show()
     #color in the padding
-    pygame.draw.rect(WIN, (243,244,237), pygame.Rect(0,0, WIN_WIDTH, PADDING))
+    pygame.draw.rect(WIN, GREENY, pygame.Rect(0,0, WIN_WIDTH, PADDING))
 
     # PHASE 1 (choosing algorithim) #
     # color, x, y, width, height, font, font_size, text=""
-    BFS_button = algorithim_button(BLUE, (WIN_WIDTH / 3 * 1) / 2 - 120, PADDING / 2 - 40, 240, 80, "comicsans", 60, "BFS")
-    a_star_button = algorithim_button(BLUE, (WIN_WIDTH / 3 * 2) - (WIN_WIDTH / 3 / 2) - 120, PADDING / 2 - 40, 240, 80, "comicsans", 60, "A*")
-    dijkstra_button = algorithim_button(BLUE, (WIN_WIDTH / 3 * 3) - (WIN_WIDTH / 3 / 2) - 120, PADDING / 2 - 40, 240, 80, "comicsans", 60, "dijkstra")
+    start = start_button(BLUE, (WIN_WIDTH / 3 * 2) - (WIN_WIDTH / 3 / 2) - 120, PADDING / 2 - 40, 240, 80, "comicsans", 60, "START")
 
-    buttons = [BFS_button, a_star_button, dijkstra_button]
     
     clock = pygame.time.Clock()
     phase_1 = True
-    algorithim = ""
 
+    # PHASE ONE LOOPS
     while phase_1:
-        BFS_button.draw(WIN)
-        a_star_button.draw(WIN)
-        dijkstra_button.draw(WIN)
+        start.draw(WIN)
         pygame.display.update()
 
         # events    
@@ -182,33 +196,30 @@ def main():
             if event.type == pygame.QUIT:
                 pygame.quit()
             if event.type == pygame.MOUSEBUTTONDOWN:
-                for button in buttons:
-                    if button.isOver(coords):
+                    if start.isOver(coords):
                         print("clicked the button")
-                        button.color = GREEN
+                        start.color = MAD_LIGHT_GREEN
                         # Make it green
-                        button.draw(WIN)
+                        start.draw(WIN)
                         pygame.display.update()
 
-                        algorithim = str(button)
-                        print(algorithim)
                         phase_1 = False
 
             if phase_1 != False:
                 if event.type == pygame.MOUSEMOTION:
-                    for button in buttons:
-                        if button.isOver(coords):
-                            button.color = DARKER_BLUE
+                        if start.isOver(coords):
+                            start.color = DARKER_BLUE
                         else:
-                            button.color = BLUE
+                            start.color = BLUE
 
+    # PHASE 2 (maze generation) #
 
     visited = []
     stack = []
     current = grid[0]
     remove_wall = False
 
-    # PHASE 2 (maze generation) #
+    # PHASE TWO LOOP
     phase_2 = True
     while phase_2:
         clock.tick(FPS)
@@ -243,6 +254,10 @@ def main():
             remove_line(last_cell, current, direction)
         if len(stack) < 1:
             phase_2 = False
+
+    # PHASE 3 (algorithim visualization) # (nvm this didn't end up happening)       
+
+
 
     game_pause = True
     while game_pause == True:
